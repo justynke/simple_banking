@@ -4,11 +4,30 @@ import sqlite3
 conn = sqlite3.connect('card.s3db')
 cur = conn.cursor()
 
-cur.execute('''CREATE TABLE accounts
-(id INTEGER, number VARCHAR, pin VARCHAR, balance INTEGER DEFAULT 0);''')
+#trying to create a table
+try:
+    cur.execute('''CREATE TABLE accounts
+    (id INTEGER PRIMARY KEY, number VARCHAR, pin VARCHAR, balance INTEGER DEFAULT 0);''')
+    conn.commit()
+    conn.close()
+except:
+    pass
 
-conn.commit()
-conn.close()
+def add_account():
+    pin = int("".join(generate_pin()))
+    card_number = int("".join(generate_card_number()))
+    print("Your card has been created")
+    print("Your card number:")
+    print(card_number)
+    print()
+    print("Your card PIN:")
+    print(pin)
+    print()
+    cur.execute('''INSERT INTO accounts (number, pin)
+    VALUES(?,?)
+    ''', [pin, card_number])
+    conn.commit()
+    conn.close()
 
 class Account:
     def __init__(self, number, pin):
@@ -20,22 +39,22 @@ def control_number(tab):
     suma = 8
     for i in range(6, 15):
         if i % 2 == 0:
-            suma += tab[i] * 2
-            if tab[i] * 2 > 9:
+            suma += int(tab[i]) * 2
+            if int(tab[i]) * 2 > 9:
                 suma -= 9
         else:
-            suma += tab[i]
+            suma += int(tab[i])
 
     if suma % 10:
-        return 10 - suma % 10
+        return str(10 - suma % 10)
     else:
-        return 0
+        return '0'
 
 
 def generate_card_number():
-    card_num = [4, 0, 0, 0, 0, 0]
+    card_num = ['4', '0', '0', '0', '0', '0']
     for i in range(6, 15):
-        card_num.append(randint(0, 9))
+        card_num.append(str(randint(0, 9)))
     control_number(card_num)
     return card_num
 
@@ -43,7 +62,7 @@ def generate_card_number():
 def generate_pin():
     pin_num = []
     for i in range(4):
-        pin_num.append(randint(0, 9))
+        pin_num.append(str(randint(0, 9)))
     return pin_num
 
 
@@ -77,14 +96,7 @@ while True:
     print("0. Exit")
     choose = int(input())
     if choose == 1:
-        data.append(Account(generate_card_number(), generate_pin()))
-        print("Your card has been created")
-        print("Your card number:")
-        print_number(data[-1].number)
-        print()
-        print("Your card PIN:")
-        print_number(data[-1].pin)
-        print()
+        add_account()
     elif choose == 2:
         print("Enter your card number:")
         card_number = [int(n) for n in list(input())]
