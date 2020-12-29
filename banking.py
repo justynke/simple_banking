@@ -43,7 +43,7 @@ def log_in(card_given, pin_given):
         print()
     else:
         print("You have successfully logged in!")
-        user_menu()
+        user_menu(card_number)
 
 
 def control_number(tab):
@@ -82,14 +82,21 @@ def print_number(tab):
         print(number, end="")
 
 
-def user_menu():
+def user_menu(card_number):
     while True:
         print("1. Balance")
-        print("2. Log out")
+        print("2. Add income")
+        print("3. Do transfer")
+        print("4. Close account")
+        print("5. Log out")
         print("0. Exit")
         choice = int(input())
         if choice == 1:
-            print("Balance: 0")
+            cur.execute("""SELECT balance FROM card
+            WHERE number = ?
+            """, card_number)
+            balance = int("".join(str(x) for x in cur.fetchone()))
+            print("Balance: {}".format(balance))
         elif choice == 2:
             print("You have successfully logged out!")
             break
