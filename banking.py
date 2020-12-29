@@ -1,41 +1,56 @@
 from random import randint
+import sqlite3
+
+conn = sqlite3.connect('card.s3db')
+cur = conn.cursor()
+
+cur.execute('''CREATE TABLE accounts
+(id INTEGER, number VARCHAR, pin VARCHAR, balance INTEGER DEFAULT 0);''')
+
+conn.commit()
+conn.close()
 
 class Account:
     def __init__(self, number, pin):
         self.number = number
         self.pin = pin
 
-def control_number(tab):
-    sum = 8
-    for i in range (6, 15):
-        if i % 2 == 0:
-            sum += tab[i] * 2
-            if tab[i] * 2 > 9:
-                sum -= 9
-        else:
-            sum += tab[i]
 
-    if sum % 10:
-        return 10 - sum % 10
+def control_number(tab):
+    suma = 8
+    for i in range(6, 15):
+        if i % 2 == 0:
+            suma += tab[i] * 2
+            if tab[i] * 2 > 9:
+                suma -= 9
+        else:
+            suma += tab[i]
+
+    if suma % 10:
+        return 10 - suma % 10
     else:
         return 0
 
+
 def generate_card_number():
-    card_num = [4,0,0,0,0,0]
+    card_num = [4, 0, 0, 0, 0, 0]
     for i in range(6, 15):
-        card_num.append(randint(0,9))
+        card_num.append(randint(0, 9))
     control_number(card_num)
     return card_num
 
+
 def generate_pin():
     pin_num = []
-    for i in range (4):
-        pin_num.append(randint(0,9))
+    for i in range(4):
+        pin_num.append(randint(0, 9))
     return pin_num
+
 
 def print_number(tab):
     for number in tab:
         print(number, end="")
+
 
 def user_menu():
     while True:
@@ -52,8 +67,9 @@ def user_menu():
             print("Bye!")
             exit()
 
-data = []
 
+data = []
+# main menu
 
 while True:
     print("1. Create an account")
@@ -74,8 +90,8 @@ while True:
         card_number = [int(n) for n in list(input())]
         print("Enter your PIN:")
         pin_number = [int(n) for n in list(input())]
-        for i in range(0, len(data), 2):
-            if card_number == data[i] and data[i+1] == pin_number:
+        for i in range(0, len(data)):
+            if card_number == data[i].number and data[i].pin == pin_number:
                 print("You have successfully logged in!")
                 print()
                 user_menu()
@@ -84,6 +100,3 @@ while True:
     elif choose == 0:
         print("Bye!")
         exit()
-
-
-
