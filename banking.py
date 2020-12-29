@@ -6,8 +6,8 @@ cur = conn.cursor()
 
 #trying to create a table
 try:
-    cur.execute('''CREATE TABLE accounts
-    (id INTEGER PRIMARY KEY, number VARCHAR, pin VARCHAR, balance INTEGER DEFAULT 0);''')
+    cur.execute('''CREATE TABLE card
+    (id INTEGER PRIMARY KEY, number TEXT, pin TEXT, balance INTEGER DEFAULT 0);''')
     conn.commit()
     conn.close()
 except:
@@ -23,16 +23,27 @@ def add_account():
     print("Your card PIN:")
     print(pin)
     print()
-    cur.execute('''INSERT INTO accounts (number, pin)
+    cur.execute('''INSERT INTO card (number, pin)
     VALUES(?,?)
-    ''', [pin, card_number])
+    ''', [card_number, pin])
     conn.commit()
-    conn.close()
 
-class Account:
-    def __init__(self, number, pin):
-        self.number = number
-        self.pin = pin
+
+def log_in(card_given, pin_given):
+    card_number = (card_given, )
+    cur.execute('''SELECT pin FROM card
+    WHERE number = ?
+    ''', card_number)
+    pin_number = cur.fetchone()
+    #converts pin to int
+    if pin_number == None:
+        print("Wrong card number or PIN!")
+    elif pin_given != int("".join(str(x) for x in pin_number)):
+        print("Wrong card number or PIN!")
+        print()
+    else:
+        print("You have successfully logged in!")
+        user_menu()
 
 
 def control_number(tab):
@@ -55,7 +66,7 @@ def generate_card_number():
     card_num = ['4', '0', '0', '0', '0', '0']
     for i in range(6, 15):
         card_num.append(str(randint(0, 9)))
-    control_number(card_num)
+    card_num.append(control_number(card_num))
     return card_num
 
 
@@ -86,8 +97,6 @@ def user_menu():
             print("Bye!")
             exit()
 
-
-data = []
 # main menu
 
 while True:
@@ -99,16 +108,11 @@ while True:
         add_account()
     elif choose == 2:
         print("Enter your card number:")
-        card_number = [int(n) for n in list(input())]
+        card_number = int(input())
         print("Enter your PIN:")
-        pin_number = [int(n) for n in list(input())]
-        for i in range(0, len(data)):
-            if card_number == data[i].number and data[i].pin == pin_number:
-                print("You have successfully logged in!")
-                print()
-                user_menu()
-            else:
-                print("Wrong card number or PIN!")
+        pin_number = int(input())
+        log_in(card_number, pin_number)
     elif choose == 0:
         print("Bye!")
+        conn.close()
         exit()
